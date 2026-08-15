@@ -36,7 +36,7 @@ El dashboard presenta:
 - Analisis territorial con grafico lollipop y treemap.
 - Sidebar con filtros por departamento, nivel de riesgo, rango de edad y quintil de riqueza.
 
-El enlace de Streamlit Cloud se agregara en esta seccion luego del despliegue.
+Aplicacion desplegada: https://cibertec-endes2025.streamlit.app/
 
 ## Tecnologias utilizadas
 
@@ -110,7 +110,19 @@ python src/ingesta.py
 python src/procesamiento.py
 ```
 
-El primer comando descarga y normaliza los modulos requeridos; el segundo integra, transforma y genera el archivo `data/processed/endes_2025_nutricion_m1638_enriquecido.parquet` usado por el dashboard. Si este archivo no esta disponible, la aplicacion carga una muestra sintetica de respaldo para que la interfaz pueda abrirse, pero los resultados no corresponden a la muestra ENDES procesada.
+El primer comando descarga y normaliza los modulos requeridos; el segundo integra, transforma y genera el archivo `data/processed/endes_2025_nutricion_m1638_enriquecido.parquet` usado por el dashboard.
+
+### Arquitectura de datos para el despliegue
+
+El proyecto separa codigo, datos y ejecucion:
+
+- **GitHub** conserva codigo, dependencias, documentacion y el pipeline reproducible.
+- **OneDrive** almacena el Parquet procesado publicado para el dashboard, evitando versionar archivos de datos en el repositorio.
+- **Streamlit Cloud** ejecuta la aplicacion y descarga una copia de solo lectura del Parquet desde OneDrive; la carga se refresca como maximo cada hora mediante cache.
+
+Esta separacion mantiene el repositorio ligero, evita mezclar datos con codigo y permite actualizar el dataset sin exponer archivos locales en GitHub. La fuente original es ENDES 2025 de Datos Abiertos del Peru y el pipeline incluido permite reconstruir el Parquet.
+
+Para conservar trazabilidad, los cambios del dataset se validan antes de publicarse, se registran con fecha, responsable y descripcion, y se publican como una nueva version del archivo. No se debe reemplazar silenciosamente el archivo que consume produccion: quien mantiene el despliegue valida la nueva version y actualiza el enlace de la aplicacion de manera controlada.
 
 Para revisar los notebooks se requieren tambien Jupyter, Matplotlib, Seaborn, Squarify y Pandera.
 
