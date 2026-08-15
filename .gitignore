@@ -22,3 +22,6 @@ logs/
 
 # Variables de entorno y llaves secretas
 .env
+
+# Documento local de trabajo
+Negocio.md
