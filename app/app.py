@@ -1,11 +1,9 @@
-import io
 import os
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
 import streamlit as st
 
 # ── Constantes y Configuración de Rutas ─────────────────────────
@@ -16,12 +14,6 @@ DATA_PATH: Path = BASE_DIR / "data" / "processed" / "endes_2025_nutricion_m1638_
 # Si app.py está dentro de una subcarpeta (ej. /app), ajustar el fallback a la raíz del proyecto
 if not DATA_PATH.exists():
     DATA_PATH = BASE_DIR.parent / "data" / "processed" / "endes_2025_nutricion_m1638_enriquecido.parquet"
-
-# Fuente externa del dataset para el despliegue en Streamlit Cloud.
-ONEDRIVE_DATA_URL = (
-    "https://1drv.ms/u/c/1a8d410df101b6b2/"
-    "IQDQN6FVGH-7RIcD2-AWQpYnAXG7aZ2imr79Gw1VxQWbdBY?e=2zGrmU&download=1"
-)
 
 # Paletas de colores ejecutivas
 COLOR_RIESGO: dict[str, str] = {
@@ -39,21 +31,14 @@ COLOR_ETAPAS: dict[str, str] = {
 
 # ── Carga y Transformación de Datos (Cacheadas) ─────────────────
 
-@st.cache_data(show_spinner=False, ttl="1h")
+@st.cache_data(show_spinner=False)
 def cargar_y_preparar_datos() -> pd.DataFrame:
-    """Carga la base local o, en Cloud, la copia publicada en OneDrive."""
-    if DATA_PATH.exists():
-        df = pd.read_parquet(DATA_PATH)
-    else:
-        try:
-            response = requests.get(ONEDRIVE_DATA_URL, timeout=120)
-            response.raise_for_status()
-            df = pd.read_parquet(io.BytesIO(response.content))
-        except (requests.RequestException, OSError, ValueError) as error:
-            raise RuntimeError(
-                "No se pudo descargar el dataset ENDES desde OneDrive. "
-                "Verifique que el enlace de descarga siga siendo publico."
-            ) from error
+    """Carga el dataset ENDES versionado junto con la aplicacion."""
+    if not DATA_PATH.exists():
+        raise FileNotFoundError(
+            f"No se encontro el dataset procesado requerido: {DATA_PATH}"
+        )
+    df = pd.read_parquet(DATA_PATH)
 
     df = df.copy()
 

@@ -117,12 +117,12 @@ El primer comando descarga y normaliza los modulos requeridos; el segundo integr
 El proyecto separa codigo, datos y ejecucion:
 
 - **GitHub** conserva codigo, dependencias, documentacion y el pipeline reproducible.
-- **OneDrive** almacena el Parquet procesado publicado para el dashboard, evitando versionar archivos de datos en el repositorio.
-- **Streamlit Cloud** ejecuta la aplicacion y descarga una copia de solo lectura del Parquet desde OneDrive; la carga se refresca como maximo cada hora mediante cache.
+- **GitHub** incluye el Parquet procesado que consume el dashboard. Su tamano reducido permite que la presentacion sea reproducible sin depender de servicios externos.
+- **Streamlit Cloud** ejecuta la aplicacion y lee ese Parquet directamente desde el repositorio desplegado.
 
-Esta separacion mantiene el repositorio ligero, evita mezclar datos con codigo y permite actualizar el dataset sin exponer archivos locales en GitHub. La fuente original es ENDES 2025 de Datos Abiertos del Peru y el pipeline incluido permite reconstruir el Parquet.
+Los Parquet crudos, logs y entornos locales permanecen excluidos para mantener el repositorio ligero. La fuente original es ENDES 2025 de Datos Abiertos del Peru y el pipeline incluido permite reconstruir el Parquet.
 
-Para conservar trazabilidad, los cambios del dataset se validan antes de publicarse, se registran con fecha, responsable y descripcion, y se publican como una nueva version del archivo. No se debe reemplazar silenciosamente el archivo que consume produccion: quien mantiene el despliegue valida la nueva version y actualiza el enlace de la aplicacion de manera controlada.
+Para conservar trazabilidad, los cambios del dataset se validan antes de publicarse y se registran con fecha, responsable y descripcion. Para esta presentacion se versiona solo el Parquet final, no los datos crudos.
 
 Para revisar los notebooks se requieren tambien Jupyter, Matplotlib, Seaborn, Squarify y Pandera.
 
